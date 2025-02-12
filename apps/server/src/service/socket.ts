@@ -6,7 +6,12 @@ class socketServices{
     constructor(){
         console.log("Scoket server initialize....");
         
-        this._io = new Server()
+        this._io = new Server({
+            cors:{
+                allowedHeaders:["*"],
+                origin:"*"
+            }
+        })
     }
 
     get io(){
@@ -18,7 +23,7 @@ class socketServices{
         console.log("Initilize socket listener...");
         
         io.on("connect",(socket)=>{
-            console.log("A new user connected",socket);
+            console.log("A new user connected",socket.id);
             
             socket.on("event:message", async({message}:{message:string})=>{
                     console.log("User message",message);

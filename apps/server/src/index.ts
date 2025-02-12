@@ -8,9 +8,6 @@ async function init() {
 
     socket.io.attach(server)
 
-    
-
-
     server.listen(PORT,()=>console.log(`server is running http://localhost:${PORT}`));
 
     socket.initlisteners()
