@@ -1,102 +1,128 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+"use client"
+import React, { useState } from 'react';
+import { 
+  Paperclip, 
+  Smile, 
+  Send, 
+  MoreVertical, 
+  Phone, 
+  Video
+} from 'lucide-react';
+import './page.css';
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
+interface Message {
+  id: number;
+  text: string;
+  sent: boolean;
+  timestamp: string;
+}
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+function App() {
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 1, text: "Hey! How are you?", sent: false, timestamp: "10:30 AM" },
+  ]);
+  const [newMessage, setNewMessage] = useState("");
+
+  const handleSend = () => {
+    if (newMessage.trim()) {
+      setMessages([
+        ...messages,
+        {
+          id: messages.length + 1,
+          text: newMessage,
+          sent: true,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+      setNewMessage("");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turbo.build/repo/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className="app-container">
+      <div className="header">
+        <div className="header-content">
+          <div className="header-inner">
+            <div className="user-info">
+              <div className="profile-picture-container">
+                <img
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces"
+                  alt="Profile"
+                  className="profile-picture"
+                />
+                <div className="online-indicator"></div>
+              </div>
+              <div>
+                <h2 className="user-name">Sarah Johnson</h2>
+                <p className="user-status">Online</p>
+              </div>
+            </div>
+            <div className="header-actions">
+              <button className="icon-button">
+                <Video size={20} />
+              </button>
+              <button className="icon-button">
+                <Phone size={20} />
+              </button>
+              <button className="icon-button">
+                <MoreVertical size={20} />
+              </button>
+            </div>
+          </div>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turbo.build?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turbo.build →
-        </a>
-      </footer>
+      </div>
+
+      <div className="chat-area">
+        <div className="chat-container">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`message-wrapper ${message.sent ? 'sent' : 'received'}`}
+            >
+              <div className="message-bubble">
+                <p className="message-text">{message.text}</p>
+                <p className="message-timestamp">{message.timestamp}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="input-area">
+        <div className="input-container">
+          <div className="input-wrapper">
+            <button className="icon-button">
+              <Smile size={24} />
+            </button>
+            <button className="icon-button">
+              <Paperclip size={24} />
+            </button>
+            <textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type a message"
+              className="message-input"
+              rows={1}
+            />
+            <button
+              onClick={handleSend}
+              className="send-button"
+            >
+              <Send size={24} />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+
+export default App;
