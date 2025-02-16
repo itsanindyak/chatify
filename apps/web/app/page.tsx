@@ -9,6 +9,7 @@ import {
   Video
 } from 'lucide-react';
 import './page.css';
+import { useSocket } from './context/socketProvider';
 
 interface Message {
   id: number;
@@ -18,32 +19,37 @@ interface Message {
 }
 
 function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: "Hey! How are you?", sent: false, timestamp: "10:30 AM" },
-  ]);
-  const [newMessage, setNewMessage] = useState("");
+  // const [messages, setMessages] = useState<Message[]>([
+  //   { id: 1, text: "Hey! How are you?", sent: false, timestamp: "10:30 AM" },
+  // ]);
+  // const [newMessage, setNewMessage] = useState("");
 
-  const handleSend = () => {
-    if (newMessage.trim()) {
-      setMessages([
-        ...messages,
-        {
-          id: messages.length + 1,
-          text: newMessage,
-          sent: true,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
-      setNewMessage("");
-    }
-  };
+  // const handleSend = () => {
+  //   if (newMessage.trim()) {
+  //     setMessages([
+  //       ...messages,
+  //       {
+  //         id: messages.length + 1,
+  //         text: newMessage,
+  //         sent: true,
+  //         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  //       }
+  //     ]);
+  //     setNewMessage("");
+  //   }
+  // };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  // const handleKeyPress = (e: React.KeyboardEvent) => {
+  //   if (e.key === 'Enter' && !e.shiftKey) {
+  //     e.preventDefault();
+  //     handleSend();
+  //   }
+  // };
+
+
+  const {sendMessage} = useSocket()
+
+  const [message,setMessage]= useState("")
 
   return (
     <div className="app-container">
@@ -81,7 +87,7 @@ function App() {
 
       <div className="chat-area">
         <div className="chat-container">
-          {messages.map((message) => (
+          {/* {messages.map((message) => (
             <div
               key={message.id}
               className={`message-wrapper ${message.sent ? 'sent' : 'received'}`}
@@ -91,7 +97,7 @@ function App() {
                 <p className="message-timestamp">{message.timestamp}</p>
               </div>
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
 
@@ -105,15 +111,17 @@ function App() {
               <Paperclip size={24} />
             </button>
             <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={(e) => setMessage(e.target.value)}
+              value={message}
               placeholder="Type a message"
               className="message-input"
               rows={1}
             />
             <button
-              onClick={handleSend}
+              onClick={e=> {
+                sendMessage(message)
+                setMessage("")
+              }}
               className="send-button"
             >
               <Send size={24} />
