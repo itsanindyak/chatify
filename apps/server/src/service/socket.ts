@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { pub,sub } from "../DB/Redis";
 
 class socketServices{
     private _io:Server
@@ -12,6 +13,8 @@ class socketServices{
                 origin:"*"
             }
         })
+
+        sub.subscribe("MESSAGES")
     }
 
     get io(){
@@ -24,11 +27,18 @@ class socketServices{
         
         io.on("connect",(socket)=>{
             console.log("A new user connected",socket.id);
-            
             socket.on("event:message", async({message}:{message:string})=>{
-                    console.log("User message",message);
+                    // publish message to redis pub
+                    pub.publish("MESSAGES",JSON.stringify({message}))
                     
             })
+        })
+
+
+        sub.on("message",(channel,message)=>{
+            if(channel === "MESSAGES"){
+                io.emit("message",message)
+            }
         })
     }
 

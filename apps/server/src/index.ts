@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import http from 'http'
 import socketServices from './service/socket';
 
@@ -12,5 +13,6 @@ async function init() {
 
     socket.initlisteners()
 }
+
 
 init()
