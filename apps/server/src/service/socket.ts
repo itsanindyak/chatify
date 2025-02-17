@@ -27,9 +27,10 @@ class socketServices{
         
         io.on("connect",(socket)=>{
             console.log("A new user connected",socket.id);
-            socket.on("event:message", async({message}:{message:string})=>{
+            socket.on("event:message", async(msg)=>{
+                const message ={...msg,id:socket.id}                
                     // publish message to redis pub
-                    pub.publish("MESSAGES",JSON.stringify({message}))
+                    pub.publish("MESSAGES",JSON.stringify(message))
                     
             })
         })
