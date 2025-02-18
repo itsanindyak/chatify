@@ -38,7 +38,7 @@ class socketServices{
 
         sub.on("message",(channel,message)=>{
             if(channel === "MESSAGES"){
-                io.emit("message",message)
+                io.emit("message",JSON.parse(message))
             }
         })
     }
