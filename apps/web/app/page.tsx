@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Paperclip, 
   Smile, 
@@ -11,8 +11,7 @@ import {
 import './page.css';
 import { useSocket } from './context/socketProvider';
 
-interface Message {
-  id: number;
+export interface Message {
   text: string;
   sent: boolean;
   timestamp: string;
@@ -23,33 +22,33 @@ function App() {
   //   { id: 1, text: "Hey! How are you?", sent: false, timestamp: "10:30 AM" },
   // ]);
   // const [newMessage, setNewMessage] = useState("");
+  const {sendingMessage,Messages} = useSocket()
 
-  // const handleSend = () => {
-  //   if (newMessage.trim()) {
-  //     setMessages([
-  //       ...messages,
-  //       {
-  //         id: messages.length + 1,
-  //         text: newMessage,
-  //         sent: true,
-  //         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  //       }
-  //     ]);
-  //     setNewMessage("");
-  //   }
-  // };
+  
 
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter' && !e.shiftKey) {
-  //     e.preventDefault();
-  //     handleSend();
-  //   }
-  // };
+  const [message,setMessage]= useState<string>("")
+
+  const handleSend = () => {
+    sendingMessage(message)
+    setMessage("")
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleTouchSend = () => {
+    handleSend();
+  };
 
 
-  const {sendMessage} = useSocket()
+  
 
-  const [message,setMessage]= useState("")
+
+  
 
   return (
     <div className="app-container">
@@ -87,17 +86,18 @@ function App() {
 
       <div className="chat-area">
         <div className="chat-container">
-          {/* {messages.map((message) => (
+          {Messages.map((message:any,index:number) => (
             <div
-              key={message.id}
-              className={`message-wrapper ${message.sent ? 'sent' : 'received'}`}
+              key={index}
+              className={`message-wrapper ${message.send ? 'sent' : 'received'}`}
             >
               <div className="message-bubble">
                 <p className="message-text">{message.text}</p>
                 <p className="message-timestamp">{message.timestamp}</p>
               </div>
             </div>
-          ))} */}
+          ))}
+          
         </div>
       </div>
 
@@ -112,16 +112,15 @@ function App() {
             </button>
             <textarea
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
               value={message}
               placeholder="Type a message"
               className="message-input"
               rows={1}
             />
             <button
-              onClick={e=> {
-                sendMessage(message)
-                setMessage("")
-              }}
+              onClick={handleSend}
+              onTouchStart={handleTouchSend}
               className="send-button"
             >
               <Send size={24} />
