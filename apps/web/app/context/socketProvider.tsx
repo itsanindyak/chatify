@@ -19,7 +19,6 @@ interface Message{
 }
 interface sendMessage {
     text: string;
-    send: boolean;
     timestamp: string;
 }
 
@@ -63,7 +62,6 @@ export const SocketProvider:React.FC<socketProviderProps>=({children})=>{
     const sendingMessage:socketContext["sendingMessage"]=useCallback((msg)=>{
         const currentMessage:sendMessage = {
             text: msg,
-            send: true,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
 
