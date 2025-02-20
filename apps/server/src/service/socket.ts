@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { pub,sub } from "../DB/Redis";
+import { produceMessage } from "./kafka";
 
 class socketServices{
     private _io:Server
@@ -36,9 +37,10 @@ class socketServices{
         })
 
 
-        sub.on("message",(channel,message)=>{
+        sub.on("message",async(channel,message)=>{
             if(channel === "MESSAGES"){
                 io.emit("message",JSON.parse(message))
+                await produceMessage(message)
             }
         })
     }
