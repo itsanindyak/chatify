@@ -1,6 +1,7 @@
 import { Kafka, Producer } from "kafkajs";
 import fs from "fs"
 import path from "path";
+import prismaClient from "./prisma";
 
 const kafka = new Kafka({
     brokers:[process.env.KAFKA_URL as string],
@@ -14,6 +15,8 @@ const kafka = new Kafka({
     }
 })
 
+
+// Producer
 let producer : Producer | null = null
 const createProducer = async ()=>{
     if(producer) return producer
@@ -34,4 +37,36 @@ const produceMessage = async (message:string)=>{
     return true
 }
 
-export  {kafka,produceMessage}
+// consumer
+
+const startMessageConsume= async ()=>{
+    const consumer = kafka.consumer({groupId:"default"})
+    await consumer.connect()
+    await consumer.subscribe({topic:"MESSAGE",fromBeginning:true})
+
+
+    await consumer.run({
+        autoCommit:true,
+        eachMessage:async ({message,pause})=>{
+            console.log("Consumeing started...");
+            
+            try {
+                await prismaClient.message.create({
+                    data:{
+                        text: message.value?.toString() as string
+                    }
+                })
+            } catch (error) {
+                console.log("Error in consume message to database",error);
+                
+                pause()
+                setTimeout(()=>{
+                    consumer.resume([{topic:"MESSAGE"}])
+                },60*1000)
+
+            }
+        }
+    })
+}
+
+export  {kafka,produceMessage,startMessageConsume}
