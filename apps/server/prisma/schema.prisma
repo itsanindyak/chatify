@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+
 }
 
 datasource db {
@@ -13,10 +14,31 @@ datasource db {
   url      = env("POSTGRES_DATABASE_URL")
 }
 
+enum Status{
+  ONLINE
+  OFFLINE
+}
+
+model User{
+  id String @id @default(uuid())
+  username String @unique
+  email String @unique
+  password String
+  refreshToken String
+  status Status
+
+  messages Message[]
+
+}
+
 model Message{
   id String @id @default(uuid())
   text String
+  sender User @relation(fields: [senderId],references: [id])
+  senderId String 
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("messages")
 }
+
+
