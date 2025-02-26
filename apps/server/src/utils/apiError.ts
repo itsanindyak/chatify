@@ -1,6 +1,6 @@
-type HttpStatusCode= 400 | 401 | 403 | 404 | 500 | 503;
+type ErrorStatusCode= 400 | 401 | 403 | 404 | 500 | 503;
 
-const statusCodeMap:Record<HttpStatusCode,string> = {
+const ErrorstatusCodeMap:Record<ErrorStatusCode,string> = {
     400: "Bad Request",
     401: "Unauthorized",
     403: "Forbidden",   
@@ -17,13 +17,13 @@ class ApiError extends Error{
     public code
     constructor(
         message: string,
-        statusCode: HttpStatusCode,
+        statusCode: ErrorStatusCode,
         data? : string
 
     ){
         super(message)
         this.statusCode = statusCode
-        this.code = statusCodeMap[statusCode]
+        this.code = ErrorstatusCodeMap[statusCode]
         this.data= data
 
     }
