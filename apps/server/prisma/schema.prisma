@@ -24,8 +24,7 @@ model User{
   username String @unique
   email String @unique
   password String
-  refreshToken String
-  status Status
+  status Status?
 
   messages Message[]
 
