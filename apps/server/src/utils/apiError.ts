@@ -11,7 +11,7 @@ const ErrorstatusCodeMap:Record<ErrorStatusCode,string> = {
 
 
 
-class ApiError extends Error{
+export class ApiError extends Error{
     public statusCode
     public data
     public code

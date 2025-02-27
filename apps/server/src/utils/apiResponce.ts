@@ -7,7 +7,7 @@ const statusCodeMap:Record<HttpStatusCode,string> = {
 
 
 
-class ApiResponce{
+export class ApiResponce{
     public statusCode
     public data
     public code
