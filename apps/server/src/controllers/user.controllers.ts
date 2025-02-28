@@ -1,51 +1,98 @@
 import { PrismaClient } from "@prisma/client";
 import prismaClient from "../service/prisma";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import { generateToken } from "../utils/token";
 import { asyncHandler } from "../utils/asyncHandler";
-import { Request,Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/apiError";
 import { ApiResponce } from "../utils/apiResponce";
-class User{
-    private prisma : PrismaClient
-    constructor(Prisma:PrismaClient = prismaClient){
-        this.prisma = Prisma
+
+class User {
+  private prisma: PrismaClient;
+  constructor(Prisma: PrismaClient = prismaClient) {
+    this.prisma = Prisma;
+  }
+
+  // sign up user
+
+  signUp = asyncHandler(async (req: Request, res: Response) => {
+    const { username, email, password } = req.body;
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email }],
+      },
+    });
+
+    if (existingUser) {
+      throw new ApiError(
+        existingUser.email === email
+          ? "Email already taken "
+          : "Username already taken",
+        409
+      );
     }
 
+    this.prisma.$transaction(async (tx) => {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    // sign up user
+      const newUser = await tx.user.create({
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+        },
+      });
 
-    signUp = asyncHandler(async (req:Request,res:Response)=> {
-        const {username,email,password}= req.body;
-        const existingUser = await this.prisma.user.findFirst({
-            where:{
-                OR:[{username},{email}]
-            }
-        })
+      return res.json(
+        new ApiResponce(201, newUser, "User registred successfully")
+      );
+    });
+  });
 
-        if(existingUser){
-            throw new ApiError(existingUser.email === email? "Email already taken ": "Username already taken",401)
-        }
-        
-        this.prisma.$transaction( async(tx)=>{
-            const hashedPassword =  await bcrypt.hash(password,10)
+  // login user
 
-            const newUser = await tx.user.create({
-                data:{
-                    username,
-                    email,
-                    password:hashedPassword
-                }
-            })
+  login = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
+    const existingUser = await this.prisma.user.findFirst({
+      where: { email },
+    });
 
-            return res.json(new ApiResponce(201,newUser,"User registred successfully"))
+    if (!existingUser) {
+      throw new ApiError("Invalid email", 401);
+    }
 
-                
-        })
-    })
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
+    if (!isPasswordValid) {
+      throw new ApiError("Invalid password", 401);
+    }
 
+    const token = generateToken({ id: existingUser.id });
 
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    const user = {
+      id: existingUser.id,
+      username: existingUser.username,
+      email: existingUser.email,
+      status: existingUser.status,
+    };
+
+    return res
+      .cookie("token", token, options)
+      .json(new ApiResponce(200, user, "Login Succesfully"));
+  });
 }
 
-export default new User
+export default new User();

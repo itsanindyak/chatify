@@ -60,6 +60,9 @@ importers:
       '@prisma/client':
         specifier: 6.3.1
         version: 6.3.1(prisma@6.3.1(typescript@5.7.3))(typescript@5.7.3)
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -103,6 +106,9 @@ importers:
       '@types/node':
         specifier: ^22.13.1
         version: 22.13.1
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       prisma:
         specifier: ^6.3.1
         version: 6.3.1(typescript@5.7.3)
