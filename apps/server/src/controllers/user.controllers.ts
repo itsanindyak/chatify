@@ -94,13 +94,30 @@ class User {
       .json(new ApiResponce(200, user, "Login Succesfully"));
   });
 
+  logout = asyncHandler(async (req: Request, res: Response) => {
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .clearCookie("token", options)
+      .json(
+        new ApiResponce(
+          201,
+          { message: "Logout Succesfully" },
+          "Logout Succesfully"
+        )
+      );
+  });
+
   verifyUser = async (id: string) => {
     const existingUser = await this.prisma.user.findUnique({
       where: {
         id: id,
       },
       select: {
-        id:true,
+        id: true,
         username: true,
         email: true,
         status: true,
