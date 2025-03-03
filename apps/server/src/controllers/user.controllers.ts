@@ -93,6 +93,26 @@ class User {
       .cookie("token", token, options)
       .json(new ApiResponce(200, user, "Login Succesfully"));
   });
+
+  verifyUser = async (id: string) => {
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id:true,
+        username: true,
+        email: true,
+        status: true,
+      },
+    });
+
+    if (!existingUser) {
+      throw new ApiError("Unauthorized Access", 401);
+    }
+
+    return existingUser;
+  };
 }
 
 export default new User();
