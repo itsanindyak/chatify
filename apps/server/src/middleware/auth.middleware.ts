@@ -23,7 +23,7 @@ const auth = asyncHandler(
       const user =await  userControllers.verifyUser(decodeData.id);
       req.user = user
 
-
+        next()
     } catch (error) {
       throw new ApiError("Invalid access token", 401);
     }
