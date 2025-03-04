@@ -7,6 +7,8 @@ import userControllers from "../controllers/user.controllers";
 
 interface TokenPayload {
   id: string;
+  exp: number;
+  iat: number;
 }
 
 const auth = asyncHandler(
@@ -19,11 +21,14 @@ const auth = asyncHandler(
         process.env.TOKEN_SECERT as string
       ) as TokenPayload;
 
+      if (Date.now() >= decodeData.exp * 1000) {
+        throw new ApiError("Token expired.please login",400)
+      }
 
-      const user =await  userControllers.verifyUser(decodeData.id);
-      req.user = user
+      const user = await userControllers.verifyUser(decodeData.id);
+      req.user = user;
 
-        next()
+      next();
     } catch (error) {
       throw new ApiError("Invalid access token", 401);
     }
